@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - GTW BDO</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui.js"></script>
+  <script> requireLogin(); renderNavbar("dashboard"); </script>
+
+  <div class="container">
+    <div class="page-title">📊 Dashboard</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total OB Hari Ini</div>
+        <div class="stat-value" id="statOB">-</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Total IB Hari Ini</div>
+        <div class="stat-value" id="statIB">-</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Total HVS Hari Ini</div>
+        <div class="stat-value" id="statHVS">-</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-label">Driver Aktif</div>
+        <div class="stat-value" id="statDriver">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 OB Terbaru</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No Track</th><th>Incharge</th><th>Service</th><th>Tujuan</th><th>Tanggal</th><th>Status</th><th>Total AWB</th>
+            </tr>
+          </thead>
+          <tbody id="tbOB"><tr><td colspan="7" style="text-align:center;padding:20px;color:#999">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📥 IB Terbaru</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No HVS</th><th>Incharge</th><th>Service</th><th>From</th><th>Tujuan</th><th>Tanggal</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbIB"><tr><td colspan="7" style="text-align:center;padding:20px;color:#999">Memuat...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const today = new Date().toISOString().slice(0, 10);
+
+    async function loadDashboard() {
+      try {
+        const [obData, ibData, hvsData, driverData] = await Promise.all([
+          dbGet("ob", `created_date=gte.${today}&select=*&order=created_date.desc`),
+          dbGet("ib", `created_date=gte.${today}&select=*&order=created_date.desc`),
+          dbGet("hvs", `created_date=gte.${today}&select=*`),
+          dbGet("driver", `status_berangkat=eq.BERANGKAT&select=*`)
+        ]);
+
+        document.getElementById("statOB").textContent = obData.length;
+        document.getElementById("statIB").textContent = ibData.length;
+        document.getElementById("statHVS").textContent = hvsData.length;
+        document.getElementById("statDriver").textContent = driverData.length;
+
+        // Tabel OB
+        const tbOB = document.getElementById("tbOB");
+        if (obData.length === 0) {
+          tbOB.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#999">Belum ada data OB hari ini</td></tr>`;
+        } else {
+          tbOB.innerHTML = obData.slice(0, 10).map(r => `
+            <tr>
+              <td>${r.no_track || "-"}</td>
+              <td>${r.incharge || "-"}</td>
+              <td>${r.service || "-"}</td>
+              <td>${r.tujuan || "-"}</td>
+              <td>${formatDate(r.created_date)}</td>
+              <td><span class="badge ${r.status === 'SELESAI' ? 'badge-green' : 'badge-yellow'}">${r.status || "-"}</span></td>
+              <td>${r.total_awb || 0}</td>
+            </tr>`).join("");
+        }
+
+        // Tabel IB
+        const tbIB = document.getElementById("tbIB");
+        if (ibData.length === 0) {
+          tbIB.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:20px;color:#999">Belum ada data IB hari ini</td></tr>`;
+        } else {
+          tbIB.innerHTML = ibData.slice(0, 10).map(r => `
+            <tr>
+              <td>${r.no_hvs || "-"}</td>
+              <td>${r.incharge || "-"}</td>
+              <td>${r.service || "-"}</td>
+              <td>${r.from_loc || "-"}</td>
+              <td>${r.tujuan || "-"}</td>
+              <td>${formatDate(r.created_date)}</td>
+              <td><span class="badge ${r.status === 'SELESAI' ? 'badge-green' : 'badge-yellow'}">${r.status || "-"}</span></td>
+            </tr>`).join("");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
