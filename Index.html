@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GTW BDO</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1e3a5f;--primary-light:#2e5490;--accent:#e8a020;--accent-hover:#c8880a;
+  --bg:#f0f4f8;--white:#fff;--danger:#dc2626;--success:#16a34a;
+  --text:#1f2937;--text-light:#6b7280;--border:#d1d5db;
+  --shadow:0 2px 12px rgba(0,0,0,.10);--radius:10px;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* NAVBAR */
+.navbar{background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;box-shadow:0 2px 8px rgba(0,0,0,.18);position:sticky;top:0;z-index:100}
+.brand{font-size:1.1rem;font-weight:700;letter-spacing:1px}.brand span{color:var(--accent)}
+.nav-links{display:flex;gap:2px;flex-wrap:wrap}
+.nav-links a{color:rgba(255,255,255,.82);text-decoration:none;padding:6px 11px;border-radius:6px;font-size:.83rem;cursor:pointer;transition:background .15s}
+.nav-links a:hover,.nav-links a.active{background:var(--primary-light);color:#fff}
+.user-info{display:flex;align-items:center;gap:10px;font-size:.85rem}
+.user-info strong{color:var(--accent)}
+.btn-logout{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;transition:background .15s}
+.btn-logout:hover{background:var(--danger);border-color:var(--danger)}
+/* PAGES */
+.page{display:none}.page.active{display:block}
+/* CONTAINER */
+.container{max-width:1100px;margin:28px auto;padding:0 16px}
+/* CARD */
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:22px}
+.card-title{font-size:1.05rem;font-weight:700;color:var(--primary);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--bg);display:flex;align-items:center;gap:8px}
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:.78rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select,.form-group textarea{padding:8px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:.93rem;outline:none;transition:border .15s;background:#fafafa}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary-light);background:#fff}
+.form-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+/* BUTTONS */
+.btn{padding:8px 20px;border-radius:7px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-light)}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:var(--accent-hover)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:4px 11px;font-size:.78rem}
+.btn-gray{background:#e5e7eb;color:#374151}
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead tr{background:var(--primary);color:#fff}
+thead th{padding:10px 13px;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:#f5f8ff}
+tbody td{padding:9px 13px;vertical-align:middle}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.76rem;font-weight:600}
+.badge-green{background:#dcfce7;color:var(--success)}
+.badge-yellow{background:#fef9c3;color:#b45309}
+.badge-red{background:#fee2e2;color:var(--danger)}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;border-left:4px solid var(--primary)}
+.stat-card.accent{border-left-color:var(--accent)}
+.stat-card.success{border-left-color:var(--success)}
+.stat-card.danger{border-left-color:var(--danger)}
+.stat-label{font-size:.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:1.9rem;font-weight:800;color:var(--primary);margin-top:4px}
+.stat-card.accent .stat-value{color:var(--accent)}
+.stat-card.success .stat-value{color:var(--success)}
+.stat-card.danger .stat-value{color:var(--danger)}
+/* TOAST */
+#toast{position:fixed;bottom:26px;right:26px;background:var(--primary);color:#fff;padding:12px 20px;border-radius:8px;font-size:.9rem;box-shadow:0 4px 16px rgba(0,0,0,.18);display:none;z-index:9999}
+#toast.success{background:var(--success)}#toast.error{background:var(--danger)}
+/* LOGIN */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary) 0%,#0f2340 100%)}
+.login-box{background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.25);padding:42px 38px;width:100%;max-width:370px}
+.login-logo{text-align:center;margin-bottom:26px}
+.login-logo h1{font-size:1.5rem;color:var(--primary);font-weight:800}
+.login-logo p{color:var(--text-light);font-size:.86rem;margin-top:4px}
+.login-box .form-group{margin-bottom:14px}
+.btn-login{width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:background .15s}
+.btn-login:hover{background:var(--primary-light)}
+.login-err{color:var(--danger);font-size:.83rem;text-align:center;margin-top:8px;display:none}
+/* PAGE TITLE */
+.page-title{font-size:1.25rem;font-weight:800;color:var(--primary);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:0}
+.tab-btn{padding:9px 22px;border:none;background:#e5e7eb;cursor:pointer;font-size:.9rem;font-weight:600;color:#6b7280;border-radius:8px 8px 0 0;transition:background .15s,color .15s}
+.tab-btn.active{background:var(--primary);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.tab-content > .card:first-child{border-radius:0 10px 10px 10px}
+/* FILTER ROW */
+.filter-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end}
+.filter-row input[type=date]{padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:.88rem}
+/* RESPONSIVE */
+@media(max-width:680px){
+  .navbar{padding:0 10px}.nav-links{display:none}
+  .container{padding:0 8px;margin:12px auto}
+  .card{padding:16px 12px}.form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen" class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>🚀 GTW BDO</h1>
+      <p>Outbound Gateway Bandung</p>
+    </div>
+    <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="Masukkan username" autocomplete="username"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password"/></div>
+    <button class="btn-login" id="btnLogin" onclick="handleLogin()">Masuk</button>
+    <div class="login-err" id="loginErr">Username atau password salah.</div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="appScreen" style="display:none">
+  <nav class="navbar">
+    <div class="brand">🚀 <span>GTW</span> BDO</div>
+    <div class="nav-links">
+      <a onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</a>
+      <a onclick="showPage('ob')" id="nav-ob">📦 OB</a>
+      <a onclick="showPage('ib')" id="nav-ib">📥 IB</a>
+      <a onclick="showPage('hvs')" id="nav-hvs">🏷️ HVS</a>
+      <a onclick="showPage('scan')" id="nav-scan">🔍 Scan</a>
+      <a onclick="showPage('driver')" id="nav-driver">🚚 Driver</a>
+      <a onclick="showPage('manifest')" id="nav-manifest">📋 Manifest</a>
+    </div>
+    <div class="user-info">👤 <strong id="navUser">-</strong><button class="btn-logout" onclick="doLogout()">Logout</button></div>
+  </nav>
+  <div id="toast"></div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page">
+    <div class="container">
+      <div class="page-title">📊 Dashboard</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total OB Hari Ini</div><div class="stat-value" id="statOB">-</div></div>
+        <div class="stat-card accent"><div class="stat-label">Total IB Hari Ini</div><div class="stat-value" id="statIB">-</div></div>
+        <div class="stat-card success"><div class="stat-label">Total HVS Hari Ini</div><div class="stat-value" id="statHVS">-</div></div>
+        <div class="stat-card danger"><div class="stat-label">Driver Aktif</div><div class="stat-value" id="statDriver">-</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📦 OB Terbaru</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>No Track</th><th>Incharge</th><th>Service</th><th>Tujuan</th><th>Tanggal</th><th>Status</th><th>AWB</th></tr></thead>
+          <tbody id="tbDashOB"><tr><td colspan="7" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📥 IB Terbaru</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>No HVS</th><th>Incharge</th><th>Service</th><th>From</th><th>Tujuan</th><th>Tanggal</th><th>Status</th></tr></thead>
+          <tbody id="tbDashIB"><tr><td colspan="7" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OB -->
+  <div id="page-ob" class="page">
+    <div class="container">
+      <div class="page-title">📦 Input Outbound (OB)</div>
+      <div class="card">
+        <div class="card-title">➕ Tambah OB Baru</div>
+        <div class="form-grid">
+          <div class="form-group"><label>No Track / Bag</label><input type="text" id="ob_no_track" placeholder="Masukkan No Track"/></div>
+          <div class="form-group"><label>Incharge</label><select id="ob_incharge" onchange="loadTujuanOB()"><option value="">-- Pilih Incharge --</option></select></div>
+          <div class="form-group"><label>Service</label><select id="ob_service" onchange="loadTujuanOB()"><option value="">-- Pilih Service --</option><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+          <div class="form-group"><label>Tujuan</label><select id="ob_tujuan"><option value="">-- Pilih Tujuan --</option></select></div>
+          <div class="form-group"><label>Tanggal & Waktu</label><input type="datetime-local" id="ob_created_date"/></div>
+          <div class="form-group"><label>Status</label><select id="ob_status"><option>PROSES</option><option>SELESAI</option><option>PENDING</option></select></div>
+          <div class="form-group"><label>Total AWB</label><input type="number" id="ob_total_awb" placeholder="0" min="0"/></div>
+          <div class="form-group"><label>URL Foto</label><input type="url" id="ob_foto_url" placeholder="https://..."/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnObSimpan" onclick="simpanOB()">💾 Simpan</button>
+          <button class="btn btn-gray" onclick="resetOB()">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Data OB</div>
+        <div class="filter-row">
+          <input type="date" id="ob_filterTgl"/>
+          <button class="btn btn-primary btn-sm" onclick="loadOB()">🔍 Filter</button>
+          <button class="btn btn-sm btn-gray" onclick="clearFilterOB()">Reset</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>No Track</th><th>Incharge</th><th>Service</th><th>Tujuan</th><th>Tanggal</th><th>Status</th><th>AWB</th><th>Aksi</th></tr></thead>
+          <tbody id="tbOB"><tr><td colspan="9" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IB -->
+  <div id="page-ib" class="page">
+    <div class="container">
+      <div class="page-title">📥 Input Inbound (IB)</div>
+      <div class="card">
+        <div class="card-title">➕ Tambah IB Baru</div>
+        <div class="form-grid">
+          <div class="form-group"><label>No HVS</label><input type="text" id="ib_no_hvs" placeholder="Masukkan No HVS"/></div>
+          <div class="form-group"><label>Incharge</label><select id="ib_incharge"><option value="">-- Pilih Incharge --</option></select></div>
+          <div class="form-group"><label>Service</label><select id="ib_service"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+          <div class="form-group"><label>From (Asal)</label><input type="text" id="ib_from_loc" placeholder="Kota/Hub asal"/></div>
+          <div class="form-group"><label>Tujuan</label><input type="text" id="ib_tujuan" placeholder="Tujuan pengiriman"/></div>
+          <div class="form-group"><label>Tanggal & Waktu</label><input type="datetime-local" id="ib_created_date"/></div>
+          <div class="form-group"><label>Status</label><select id="ib_status"><option>PROSES</option><option>SELESAI</option><option>PENDING</option></select></div>
+          <div class="form-group"><label>Total AWB</label><input type="number" id="ib_total_awb" placeholder="0" min="0"/></div>
+          <div class="form-group"><label>URL Foto</label><input type="url" id="ib_foto_url" placeholder="https://..."/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnIbSimpan" onclick="simpanIB()">💾 Simpan</button>
+          <button class="btn btn-gray" onclick="resetIB()">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Data IB</div>
+        <div class="filter-row">
+          <input type="date" id="ib_filterTgl"/>
+          <button class="btn btn-primary btn-sm" onclick="loadIB()">🔍 Filter</button>
+          <button class="btn btn-sm btn-gray" onclick="clearFilterIB()">Reset</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>No HVS</th><th>Incharge</th><th>Service</th><th>From</th><th>Tujuan</th><th>Tanggal</th><th>Status</th><th>AWB</th><th>Aksi</th></tr></thead>
+          <tbody id="tbIB"><tr><td colspan="10" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HVS -->
+  <div id="page-hvs" class="page">
+    <div class="container">
+      <div class="page-title">🏷️ Input HVS</div>
+      <div class="card">
+        <div class="card-title">➕ Tambah HVS Baru</div>
+        <div class="form-grid">
+          <div class="form-group"><label>No Track</label><input type="text" id="hvs_no_track" placeholder="Masukkan No Track"/></div>
+          <div class="form-group"><label>Incharge</label><select id="hvs_incharge" onchange="loadTujuanHVS()"><option value="">-- Pilih Incharge --</option></select></div>
+          <div class="form-group"><label>Service</label><select id="hvs_service" onchange="loadTujuanHVS()"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+          <div class="form-group"><label>Tujuan</label><select id="hvs_tujuan"><option value="">-- Pilih Tujuan --</option></select></div>
+          <div class="form-group"><label>Tanggal & Waktu</label><input type="datetime-local" id="hvs_created_date"/></div>
+          <div class="form-group"><label>Status</label><select id="hvs_status"><option>PROSES</option><option>SELESAI</option><option>PENDING</option></select></div>
+          <div class="form-group"><label>Total AWB</label><input type="number" id="hvs_total_awb" placeholder="0" min="0"/></div>
+          <div class="form-group"><label>URL Foto</label><input type="url" id="hvs_foto_url" placeholder="https://..."/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnHvsSimpan" onclick="simpanHVS()">💾 Simpan</button>
+          <button class="btn btn-gray" onclick="resetHVS()">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Data HVS</div>
+        <div class="filter-row">
+          <input type="date" id="hvs_filterTgl"/>
+          <button class="btn btn-primary btn-sm" onclick="loadHVS()">🔍 Filter</button>
+          <button class="btn btn-sm btn-gray" onclick="clearFilterHVS()">Reset</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>No Track</th><th>Incharge</th><th>Service</th><th>Tujuan</th><th>Tanggal</th><th>Status</th><th>AWB</th><th>Aksi</th></tr></thead>
+          <tbody id="tbHVS"><tr><td colspan="9" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN -->
+  <div id="page-scan" class="page">
+    <div class="container">
+      <div class="page-title">🔍 Scan</div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchScanTab('scan_ob',this)">📦 Scan OB</button>
+        <button class="tab-btn" onclick="switchScanTab('scan_ib',this)">📥 Scan IB</button>
+        <button class="tab-btn" onclick="switchScanTab('scan_hvs',this)">🏷️ Scan HVS</button>
+      </div>
+      <!-- SCAN OB -->
+      <div id="tab_scan_ob" class="tab-content active">
+        <div class="card">
+          <div class="card-title">➕ Input Scan OB</div>
+          <div class="form-grid">
+            <div class="form-group"><label>No Track / Bag</label><input type="text" id="sob_no_track" placeholder="Scan / ketik No Track"/></div>
+            <div class="form-group"><label>Incharge</label><select id="sob_incharge"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Tanggal Scan</label><input type="datetime-local" id="sob_scan_date"/></div>
+            <div class="form-group"><label>AWB / Bag</label><input type="text" id="sob_awb_bag" placeholder="No AWB atau Bag"/></div>
+            <div class="form-group"><label>Status</label><select id="sob_status"><option>SCAN</option><option>PROSES</option><option>SELESAI</option></select></div>
+            <div class="form-group"><label>Service</label><select id="sob_service"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+            <div class="form-group"><label>Tujuan</label><input type="text" id="sob_tujuan" placeholder="Tujuan"/></div>
+            <div class="form-group"><label>URL Foto</label><input type="url" id="sob_foto_url" placeholder="https://..."/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnSobSimpan" onclick="simpanScanOB()">💾 Simpan</button>
+            <button class="btn btn-gray" onclick="resetSob()">Reset</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Data Scan OB</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>#</th><th>No Track</th><th>Incharge</th><th>AWB/Bag</th><th>Tujuan</th><th>Scan Date</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="tbScanOB"><tr><td colspan="8" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+      <!-- SCAN IB -->
+      <div id="tab_scan_ib" class="tab-content">
+        <div class="card">
+          <div class="card-title">➕ Input Scan IB</div>
+          <div class="form-grid">
+            <div class="form-group"><label>No HVS</label><input type="text" id="sib_no_hvs" placeholder="No HVS"/></div>
+            <div class="form-group"><label>Incharge</label><select id="sib_incharge"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Tanggal Scan</label><input type="datetime-local" id="sib_scan_date"/></div>
+            <div class="form-group"><label>AWB</label><input type="text" id="sib_awb" placeholder="No AWB"/></div>
+            <div class="form-group"><label>Tujuan</label><input type="text" id="sib_tujuan" placeholder="Tujuan"/></div>
+            <div class="form-group"><label>Status</label><select id="sib_status"><option>SCAN</option><option>PROSES</option><option>SELESAI</option></select></div>
+            <div class="form-group"><label>Service</label><select id="sib_service"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+            <div class="form-group"><label>From</label><input type="text" id="sib_from_loc" placeholder="Asal"/></div>
+            <div class="form-group"><label>URL Foto</label><input type="url" id="sib_foto_url" placeholder="https://..."/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnSibSimpan" onclick="simpanScanIB()">💾 Simpan</button>
+            <button class="btn btn-gray" onclick="resetSib()">Reset</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Data Scan IB</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>#</th><th>No HVS</th><th>Incharge</th><th>AWB</th><th>Tujuan</th><th>From</th><th>Scan Date</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="tbScanIB"><tr><td colspan="9" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+      <!-- SCAN HVS -->
+      <div id="tab_scan_hvs" class="tab-content">
+        <div class="card">
+          <div class="card-title">➕ Input Scan HVS</div>
+          <div class="form-grid">
+            <div class="form-group"><label>No HVS</label><input type="text" id="shvs_no_hvs" placeholder="No HVS"/></div>
+            <div class="form-group"><label>Incharge</label><select id="shvs_incharge"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Tanggal Scan</label><input type="datetime-local" id="shvs_scan_date"/></div>
+            <div class="form-group"><label>AWB</label><input type="text" id="shvs_awb" placeholder="No AWB"/></div>
+            <div class="form-group"><label>Status</label><select id="shvs_status"><option>SCAN</option><option>PROSES</option><option>SELESAI</option></select></div>
+            <div class="form-group"><label>Service</label><select id="shvs_service"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+            <div class="form-group"><label>Tujuan</label><input type="text" id="shvs_tujuan" placeholder="Tujuan"/></div>
+            <div class="form-group"><label>URL Foto</label><input type="url" id="shvs_foto_url" placeholder="https://..."/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="btnShvsSimpan" onclick="simpanScanHVS()">💾 Simpan</button>
+            <button class="btn btn-gray" onclick="resetShvs()">Reset</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Data Scan HVS</div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>#</th><th>No HVS</th><th>Incharge</th><th>AWB</th><th>Tujuan</th><th>Scan Date</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="tbScanHVS"><tr><td colspan="8" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRIVER -->
+  <div id="page-driver" class="page">
+    <div class="container">
+      <div class="page-title">🚚 Data Driver</div>
+      <div class="card">
+        <div class="card-title">➕ Tambah Data Driver</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID Driver</label><input type="text" id="drv_id_driver" placeholder="ID Driver"/></div>
+          <div class="form-group"><label>From (Asal)</label><input type="text" id="drv_from_loc" placeholder="Kota asal"/></div>
+          <div class="form-group"><label>Tujuan</label><input type="text" id="drv_tujuan" placeholder="Kota tujuan"/></div>
+          <div class="form-group"><label>Latitude</label><input type="number" id="drv_lat" placeholder="0.000000" step="any"/></div>
+          <div class="form-group"><label>Longitude</label><input type="number" id="drv_lng" placeholder="0.000000" step="any"/></div>
+          <div class="form-group"><label>Tanggal Berangkat</label><input type="datetime-local" id="drv_date_berangkat"/></div>
+          <div class="form-group"><label>Status Berangkat</label><select id="drv_status_berangkat"><option>BERANGKAT</option><option>SAMPAI</option><option>PENDING</option></select></div>
+          <div class="form-group"><label>Foto Berangkat (URL)</label><input type="url" id="drv_foto_berangkat" placeholder="https://..."/></div>
+          <div class="form-group"><label>Tanggal Sampai</label><input type="datetime-local" id="drv_date_sampai"/></div>
+          <div class="form-group"><label>Status Sampai</label><select id="drv_status_sampai"><option value="">-- Belum --</option><option>SAMPAI</option><option>TERLAMBAT</option></select></div>
+          <div class="form-group"><label>Foto Sampai (URL)</label><input type="url" id="drv_foto_sampai" placeholder="https://..."/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnDrvSimpan" onclick="simpanDriver()">💾 Simpan</button>
+          <button class="btn btn-gray" onclick="resetDriver()">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Daftar Driver</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>ID Driver</th><th>From</th><th>Tujuan</th><th>Berangkat</th><th>Status</th><th>Sampai</th><th>Status Sampai</th><th>Aksi</th></tr></thead>
+          <tbody id="tbDriver"><tr><td colspan="9" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANIFEST -->
+  <div id="page-manifest" class="page">
+    <div class="container">
+      <div class="page-title">📋 Manifest</div>
+      <div class="card">
+        <div class="card-title">➕ Tambah Manifest</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Incharge</label><select id="mf_incharge"><option value="">-- Pilih Incharge --</option></select></div>
+          <div class="form-group"><label>Service</label><select id="mf_service"><option>SAMEDAY</option><option>NEXTDAY</option></select></div>
+          <div class="form-group"><label>Tujuan</label><input type="text" id="mf_tujuan" placeholder="Tujuan pengiriman"/></div>
+          <div class="form-group"><label>Tanggal</label><input type="date" id="mf_tanggal"/></div>
+          <div class="form-group"><label>Jumlah AWB</label><input type="number" id="mf_jumlah" placeholder="0" min="0"/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnMfSimpan" onclick="simpanManifest()">💾 Simpan</button>
+          <button class="btn btn-gray" onclick="resetManifest()">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Rekap Manifest</div>
+        <div class="filter-row">
+          <div><div style="font-size:.75rem;color:#6b7280;margin-bottom:3px">Dari</div><input type="date" id="mf_filterFrom"/></div>
+          <div><div style="font-size:.75rem;color:#6b7280;margin-bottom:3px">Sampai</div><input type="date" id="mf_filterTo"/></div>
+          <button class="btn btn-primary btn-sm" onclick="loadManifest()">🔍 Filter</button>
+          <button class="btn btn-sm btn-gray" onclick="clearFilterMF()">Reset</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Tanggal</th><th>Incharge</th><th>Service</th><th>Tujuan</th><th>Jumlah AWB</th><th>Aksi</th></tr></thead>
+          <tbody id="tbManifest"><tr><td colspan="7" style="text-align:center;padding:18px;color:#999">Memuat...</td></tr></tbody>
+        </table></div>
+        <div id="mfTotalBar" style="display:none;margin-top:12px;padding:11px 14px;background:#f0f4f8;border-radius:8px;font-weight:600;color:var(--primary)"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- end appScreen -->
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://tbopoplkwvpdnbrhsqmk.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRib3BvcGxrd3ZwZG5icmhzcW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMTAyMDMsImV4cCI6MjA5NTY4NjIwM30.6SuI675lGX_1kRqMCCBN2Sxx96BKgStNy8oNSq8c3Sk";
+const HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+  "Content-Type": "application/json",
+  "Prefer": "return=representation"
+};
+
+// ============================================================
+// API
+// ============================================================
+async function dbGet(table, params="") {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {headers:HEADERS});
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbInsert(table, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {method:"POST",headers:HEADERS,body:JSON.stringify(data)});
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbUpdate(table, id, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {method:"PATCH",headers:HEADERS,body:JSON.stringify(data)});
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbDelete(table, id) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {method:"DELETE",headers:HEADERS});
+  if (!r.ok) throw new Error(await r.text());
+  return true;
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function getSession(){const s=sessionStorage.getItem("gtw_user");return s?JSON.parse(s):null}
+function setSession(u){sessionStorage.setItem("gtw_user",JSON.stringify(u))}
+function clearSession(){sessionStorage.removeItem("gtw_user")}
+
+async function handleLogin() {
+  const username = document.getElementById("username").value.trim().toUpperCase();
+  const password = document.getElementById("password").value.trim();
+  const btn = document.getElementById("btnLogin");
+  const err = document.getElementById("loginErr");
+  if (!username || !password) { err.style.display="block"; err.textContent="Isi username dan password."; return; }
+  btn.disabled=true; btn.textContent="Memeriksa..."; err.style.display="none";
+  try {
+    const data = await dbGet("data_users", `username=eq.${username}&password=eq.${password}&select=username,user_id`);
+    if (data && data.length > 0) {
+      setSession(data[0]);
+      startApp();
+    } else {
+      err.style.display="block"; err.textContent="Username atau password salah.";
+    }
+  } catch(e) { err.style.display="block"; err.textContent="Gagal terhubung ke server."; }
+  btn.disabled=false; btn.textContent="Masuk";
+}
+
+function doLogout() {
+  clearSession();
+  document.getElementById("appScreen").style.display="none";
+  document.getElementById("loginScreen").style.display="flex";
+}
+
+// ============================================================
+// APP INIT
+// ============================================================
+function startApp() {
+  document.getElementById("loginScreen").style.display="none";
+  document.getElementById("appScreen").style.display="block";
+  const user = getSession();
+  document.getElementById("navUser").textContent = user?.username || "-";
+  loadInchargeAll();
+  showPage("dashboard");
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("keydown", e => { if (e.key==="Enter" && document.getElementById("loginScreen").style.display!=="none") handleLogin(); });
+  if (getSession()) startApp();
+});
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-links a").forEach(a => a.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.getElementById("nav-"+name).classList.add("active");
+  const loaders = {dashboard:loadDashboard,ob:()=>{loadOB();},ib:()=>{loadIB();},hvs:()=>{loadHVS();},scan:initScan,driver:loadDriver,manifest:()=>{loadManifest();}};
+  if (loaders[name]) loaders[name]();
+}
+
+function showToast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.textContent=msg; t.className=type; t.style.display="block";
+  setTimeout(()=>t.style.display="none",3000);
+}
+function setLoading(btn, loading) {
+  if (loading) { btn.disabled=true; btn._orig=btn.textContent; btn.textContent="Menyimpan..."; }
+  else { btn.disabled=false; btn.textContent=btn._orig||"Simpan"; }
+}
+function formatDate(str) { if(!str)return"-"; return new Date(str).toLocaleString("id-ID",{dateStyle:"short",timeStyle:"short"}); }
+function formatDateOnly(str) { if(!str)return"-"; return new Date(str).toLocaleDateString("id-ID"); }
+function todayISO() { return new Date().toISOString().slice(0,16); }
+function todayDate() { return new Date().toISOString().slice(0,10); }
+function confirmDelete(cb) { if(confirm("Yakin ingin menghapus data ini?")) cb(); }
+
+function badgeStatus(s) {
+  if (s==="SELESAI"||s==="SAMPAI") return "badge-green";
+  if (s==="PENDING"||s==="TERLAMBAT") return "badge-red";
+  if (s==="SCAN"||s==="PROSES") return "badge-yellow";
+  return "badge-blue";
+}
+
+// ============================================================
+// INCHARGE LOADER
+// ============================================================
+let _inchargeList = [];
+async function loadInchargeAll() {
+  try {
+    const data = await dbGet("data_incharge","select=incharge&order=incharge");
+    _inchargeList = [...new Set(data.map(d=>d.incharge))];
+    ["ob_incharge","ib_incharge","hvs_incharge","sob_incharge","sib_incharge","shvs_incharge","mf_incharge"]
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const cur = el.value;
+        el.innerHTML = `<option value="">-- Pilih --</option>`;
+        _inchargeList.forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+        if (cur) el.value = cur;
+      });
+  } catch(e) {}
+}
+
+async function loadTujuanOB() {
+  const inch = document.getElementById("ob_incharge").value;
+  const svc = document.getElementById("ob_service").value;
+  const sel = document.getElementById("ob_tujuan");
+  sel.innerHTML = `<option value="">-- Pilih Tujuan --</option>`;
+  if (!inch||!svc) return;
+  try { const d = await dbGet("data_routing",`incharge=eq.${inch}&service=eq.${svc}&select=tujuan`); d.forEach(r=>sel.innerHTML+=`<option>${r.tujuan}</option>`); } catch(e){}
+}
+async function loadTujuanHVS() {
+  const inch = document.getElementById("hvs_incharge").value;
+  const svc = document.getElementById("hvs_service").value;
+  const sel = document.getElementById("hvs_tujuan");
+  sel.innerHTML = `<option value="">-- Pilih Tujuan --</option>`;
+  if (!inch||!svc) return;
+  try { const d = await dbGet("data_routing",`incharge=eq.${inch}&service=eq.${svc}&select=tujuan`); d.forEach(r=>sel.innerHTML+=`<option>${r.tujuan}</option>`); } catch(e){}
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  const today = todayDate();
+  try {
+    const [obD,ibD,hvsD,drvD] = await Promise.all([
+      dbGet("ob",`created_date=gte.${today}&select=*&order=created_date.desc`),
+      dbGet("ib",`created_date=gte.${today}&select=*&order=created_date.desc`),
+      dbGet("hvs",`created_date=gte.${today}&select=*`),
+      dbGet("driver","status_berangkat=eq.BERANGKAT&select=*")
+    ]);
+    document.getElementById("statOB").textContent = obD.length;
+    document.getElementById("statIB").textContent = ibD.length;
+    document.getElementById("statHVS").textContent = hvsD.length;
+    document.getElementById("statDriver").textContent = drvD.length;
+    document.getElementById("tbDashOB").innerHTML = obD.length===0
+      ? `<tr><td colspan="7" style="text-align:center;padding:18px;color:#999">Belum ada data OB hari ini</td></tr>`
+      : obD.slice(0,10).map(r=>`<tr><td>${r.no_track||"-"}</td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.created_date)}</td><td><span class="badge ${badgeStatus(r.status)}">${r.status||"-"}</span></td><td>${r.total_awb||0}</td></tr>`).join("");
+    document.getElementById("tbDashIB").innerHTML = ibD.length===0
+      ? `<tr><td colspan="7" style="text-align:center;padding:18px;color:#999">Belum ada data IB hari ini</td></tr>`
+      : ibD.slice(0,10).map(r=>`<tr><td>${r.no_hvs||"-"}</td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.from_loc||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.created_date)}</td><td><span class="badge ${badgeStatus(r.status)}">${r.status||"-"}</span></td></tr>`).join("");
+  } catch(e){}
+}
+
+// ============================================================
+// OB
+// ============================================================
+let obEditId=null;
+async function loadOB(){
+  const tgl=document.getElementById("ob_filterTgl").value;
+  let p="select=*&order=created_date.desc&limit=50";
+  if(tgl) p+=`&created_date=gte.${tgl}&created_date=lte.${tgl}T23:59:59`;
+  try{
+    const data=await dbGet("ob",p);
+    const tb=document.getElementById("tbOB");
+    tb.innerHTML=data.length===0?`<tr><td colspan="9" style="text-align:center;padding:24px;color:#999">Belum ada data</td></tr>`
+      :data.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.no_track||"-"}</strong></td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.created_date)}</td><td><span class="badge ${badgeStatus(r.status)}">${r.status||"-"}</span></td><td>${r.total_awb||0}</td><td style="display:flex;gap:5px"><button class="btn btn-sm btn-accent" onclick="editOB(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="hapusOB(${r.id})">🗑️</button></td></tr>`).join("");
+  }catch(e){showToast("Gagal memuat","error");}
+}
+async function simpanOB(){
+  const btn=document.getElementById("btnObSimpan");
+  const payload={no_track:document.getElementById("ob_no_track").value.trim(),incharge:document.getElementById("ob_incharge").value,service:document.getElementById("ob_service").value,tujuan:document.getElementById("ob_tujuan").value,created_date:document.getElementById("ob_created_date").value||null,status:document.getElementById("ob_status").value,total_awb:parseInt(document.getElementById("ob_total_awb").value)||0,foto_url:document.getElementById("ob_foto_url").value.trim()||null};
+  if(!payload.no_track||!payload.incharge||!payload.tujuan){showToast("Lengkapi No Track, Incharge, Tujuan","error");return;}
+  setLoading(btn,true);
+  try{
+    if(obEditId){await dbUpdate("ob",obEditId,payload);showToast("OB diperbarui ✅");obEditId=null;}
+    else{await dbInsert("ob",payload);showToast("OB disimpan ✅");}
+    resetOB();loadOB();
+  }catch(e){showToast("Gagal: "+e.message,"error");}
+  setLoading(btn,false);
+}
+async function editOB(id){
+  try{
+    const r=(await dbGet("ob",`id=eq.${id}&select=*`))[0];
+    obEditId=id;
+    document.getElementById("ob_no_track").value=r.no_track||"";
+    document.getElementById("ob_incharge").value=r.incharge||"";
+    await loadTujuanOB();
+    document.getElementById("ob_service").value=r.service||"";
+    document.getElementById("ob_tujuan").value=r.tujuan||"";
+    document.getElementById("ob_created_date").value=r.created_date?.slice(0,16)||"";
+    document.getElementById("ob_status").value=r.status||"PROSES";
+    document.getElementById("ob_total_awb").value=r.total_awb||0;
+    document.getElementById("ob_foto_url").value=r.foto_url||"";
+    document.getElementById("btnObSimpan").textContent="✏️ Update";
+    showPage("ob");window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showToast("Gagal","error");}
+}
+async function hapusOB(id){confirmDelete(async()=>{try{await dbDelete("ob",id);showToast("Dihapus");loadOB();}catch(e){showToast("Gagal hapus","error");}});}
+function resetOB(){["ob_no_track","ob_foto_url"].forEach(x=>document.getElementById(x).value="");["ob_incharge","ob_service"].forEach(x=>document.getElementById(x).value="");document.getElementById("ob_tujuan").innerHTML=`<option value="">-- Pilih Tujuan --</option>`;document.getElementById("ob_status").value="PROSES";document.getElementById("ob_total_awb").value="";document.getElementById("ob_created_date").value=todayISO();obEditId=null;document.getElementById("btnObSimpan").textContent="💾 Simpan";}
+function clearFilterOB(){document.getElementById("ob_filterTgl").value="";loadOB();}
+
+// ============================================================
+// IB
+// ============================================================
+let ibEditId=null;
+async function loadIB(){
+  const tgl=document.getElementById("ib_filterTgl").value;
+  let p="select=*&order=created_date.desc&limit=50";
+  if(tgl) p+=`&created_date=gte.${tgl}&created_date=lte.${tgl}T23:59:59`;
+  try{
+    const data=await dbGet("ib",p);
+    const tb=document.getElementById("tbIB");
+    tb.innerHTML=data.length===0?`<tr><td colspan="10" style="text-align:center;padding:24px;color:#999">Belum ada data</td></tr>`
+      :data.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.no_hvs||"-"}</strong></td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.from_loc||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.created_date)}</td><td><span class="badge ${badgeStatus(r.status)}">${r.status||"-"}</span></td><td>${r.total_awb||0}</td><td style="display:flex;gap:5px"><button class="btn btn-sm btn-accent" onclick="editIB(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="hapusIB(${r.id})">🗑️</button></td></tr>`).join("");
+  }catch(e){showToast("Gagal memuat","error");}
+}
+async function simpanIB(){
+  const btn=document.getElementById("btnIbSimpan");
+  const payload={no_hvs:document.getElementById("ib_no_hvs").value.trim(),incharge:document.getElementById("ib_incharge").value,service:document.getElementById("ib_service").value,from_loc:document.getElementById("ib_from_loc").value.trim(),tujuan:document.getElementById("ib_tujuan").value.trim(),created_date:document.getElementById("ib_created_date").value||null,status:document.getElementById("ib_status").value,total_awb:parseInt(document.getElementById("ib_total_awb").value)||0,foto_url:document.getElementById("ib_foto_url").value.trim()||null};
+  if(!payload.no_hvs||!payload.incharge){showToast("Lengkapi No HVS, Incharge","error");return;}
+  setLoading(btn,true);
+  try{
+    if(ibEditId){await dbUpdate("ib",ibEditId,payload);showToast("IB diperbarui ✅");ibEditId=null;}
+    else{await dbInsert("ib",payload);showToast("IB disimpan ✅");}
+    resetIB();loadIB();
+  }catch(e){showToast("Gagal: "+e.message,"error");}
+  setLoading(btn,false);
+}
+async function editIB(id){
+  try{
+    const r=(await dbGet("ib",`id=eq.${id}&select=*`))[0];
+    ibEditId=id;
+    document.getElementById("ib_no_hvs").value=r.no_hvs||"";
+    document.getElementById("ib_incharge").value=r.incharge||"";
+    document.getElementById("ib_service").value=r.service||"";
+    document.getElementById("ib_from_loc").value=r.from_loc||"";
+    document.getElementById("ib_tujuan").value=r.tujuan||"";
+    document.getElementById("ib_created_date").value=r.created_date?.slice(0,16)||"";
+    document.getElementById("ib_status").value=r.status||"PROSES";
+    document.getElementById("ib_total_awb").value=r.total_awb||0;
+    document.getElementById("ib_foto_url").value=r.foto_url||"";
+    document.getElementById("btnIbSimpan").textContent="✏️ Update";
+    showPage("ib");window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showToast("Gagal","error");}
+}
+async function hapusIB(id){confirmDelete(async()=>{try{await dbDelete("ib",id);showToast("Dihapus");loadIB();}catch(e){showToast("Gagal hapus","error");}});}
+function resetIB(){["ib_no_hvs","ib_from_loc","ib_tujuan","ib_foto_url"].forEach(x=>document.getElementById(x).value="");document.getElementById("ib_incharge").value="";document.getElementById("ib_status").value="PROSES";document.getElementById("ib_total_awb").value="";document.getElementById("ib_created_date").value=todayISO();ibEditId=null;document.getElementById("btnIbSimpan").textContent="💾 Simpan";}
+function clearFilterIB(){document.getElementById("ib_filterTgl").value="";loadIB();}
+
+// ============================================================
+// HVS
+// ============================================================
+let hvsEditId=null;
+async function loadHVS(){
+  const tgl=document.getElementById("hvs_filterTgl").value;
+  let p="select=*&order=created_date.desc&limit=50";
+  if(tgl) p+=`&created_date=gte.${tgl}&created_date=lte.${tgl}T23:59:59`;
+  try{
+    const data=await dbGet("hvs",p);
+    const tb=document.getElementById("tbHVS");
+    tb.innerHTML=data.length===0?`<tr><td colspan="9" style="text-align:center;padding:24px;color:#999">Belum ada data</td></tr>`
+      :data.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.no_track||"-"}</strong></td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.created_date)}</td><td><span class="badge ${badgeStatus(r.status)}">${r.status||"-"}</span></td><td>${r.total_awb||0}</td><td style="display:flex;gap:5px"><button class="btn btn-sm btn-accent" onclick="editHVS(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="hapusHVS(${r.id})">🗑️</button></td></tr>`).join("");
+  }catch(e){showToast("Gagal memuat","error");}
+}
+async function simpanHVS(){
+  const btn=document.getElementById("btnHvsSimpan");
+  const payload={no_track:document.getElementById("hvs_no_track").value.trim(),incharge:document.getElementById("hvs_incharge").value,service:document.getElementById("hvs_service").value,tujuan:document.getElementById("hvs_tujuan").value,created_date:document.getElementById("hvs_created_date").value||null,status:document.getElementById("hvs_status").value,total_awb:parseInt(document.getElementById("hvs_total_awb").value)||0,foto_url:document.getElementById("hvs_foto_url").value.trim()||null};
+  if(!payload.no_track||!payload.incharge){showToast("Lengkapi No Track, Incharge","error");return;}
+  setLoading(btn,true);
+  try{
+    if(hvsEditId){await dbUpdate("hvs",hvsEditId,payload);showToast("HVS diperbarui ✅");hvsEditId=null;}
+    else{await dbInsert("hvs",payload);showToast("HVS disimpan ✅");}
+    resetHVS();loadHVS();
+  }catch(e){showToast("Gagal: "+e.message,"error");}
+  setLoading(btn,false);
+}
+async function editHVS(id){
+  try{
+    const r=(await dbGet("hvs",`id=eq.${id}&select=*`))[0];
+    hvsEditId=id;
+    document.getElementById("hvs_no_track").value=r.no_track||"";
+    document.getElementById("hvs_incharge").value=r.incharge||"";
+    await loadTujuanHVS();
+    document.getElementById("hvs_service").value=r.service||"";
+    document.getElementById("hvs_tujuan").value=r.tujuan||"";
+    document.getElementById("hvs_created_date").value=r.created_date?.slice(0,16)||"";
+    document.getElementById("hvs_status").value=r.status||"PROSES";
+    document.getElementById("hvs_total_awb").value=r.total_awb||0;
+    document.getElementById("hvs_foto_url").value=r.foto_url||"";
+    document.getElementById("btnHvsSimpan").textContent="✏️ Update";
+    showPage("hvs");window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showToast("Gagal","error");}
+}
+async function hapusHVS(id){confirmDelete(async()=>{try{await dbDelete("hvs",id);showToast("Dihapus");loadHVS();}catch(e){showToast("Gagal hapus","error");}});}
+function resetHVS(){["hvs_no_track","hvs_foto_url"].forEach(x=>document.getElementById(x).value="");document.getElementById("hvs_incharge").value="";document.getElementById("hvs_tujuan").innerHTML=`<option value="">-- Pilih Tujuan --</option>`;document.getElementById("hvs_status").value="PROSES";document.getElementById("hvs_total_awb").value="";document.getElementById("hvs_created_date").value=todayISO();hvsEditId=null;document.getElementById("btnHvsSimpan").textContent="💾 Simpan";}
+function clearFilterHVS(){document.getElementById("hvs_filterTgl").value="";loadHVS();}
+
+// ============================================================
+// SCAN
+// ============================================================
+function switchScanTab(name,btn){
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("tab_"+name).classList.add("active");
+  btn.classList.add("active");
+}
+async function initScan(){
+  ["sob_scan_date","sib_scan_date","shvs_scan_date"].forEach(id=>document.getElementById(id).value=todayISO());
+  loadScanOB();loadScanIB();loadScanHVS();
+}
+// Scan OB
+async function loadScanOB(){try{const d=await dbGet("scan_ob","select=*&order=scan_date.desc&limit=30");const tb=document.getElementById("tbScanOB");tb.innerHTML=d.length===0?`<tr><td colspan="8" style="text-align:center;padding:18px;color:#999">Belum ada data</td></tr>`:d.map((r,i)=>`<tr><td>${i+1}</td><td>${r.no_track||"-"}</td><td>${r.incharge||"-"}</td><td>${r.awb_bag||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.scan_date)}</td><td><span class="badge badge-blue">${r.status||"-"}</span></td><td><button class="btn btn-sm btn-danger" onclick="hapusScan('scan_ob',${r.id},loadScanOB)">🗑️</button></td></tr>`).join("");}catch(e){}}
+async function simpanScanOB(){const btn=document.getElementById("btnSobSimpan");const p={no_track:document.getElementById("sob_no_track").value.trim(),incharge:document.getElementById("sob_incharge").value,scan_date:document.getElementById("sob_scan_date").value||null,awb_bag:document.getElementById("sob_awb_bag").value.trim(),status:document.getElementById("sob_status").value,service:document.getElementById("sob_service").value,tujuan:document.getElementById("sob_tujuan").value.trim(),foto_url:document.getElementById("sob_foto_url").value.trim()||null};if(!p.no_track){showToast("Isi No Track","error");return;}setLoading(btn,true);try{await dbInsert("scan_ob",p);showToast("Scan OB disimpan ✅");resetSob();loadScanOB();}catch(e){showToast("Gagal: "+e.message,"error");}setLoading(btn,false);}
+function resetSob(){["sob_no_track","sob_awb_bag","sob_tujuan","sob_foto_url"].forEach(x=>document.getElementById(x).value="");document.getElementById("sob_incharge").value="";document.getElementById("sob_scan_date").value=todayISO();}
+// Scan IB
+async function loadScanIB(){try{const d=await dbGet("scan_ib","select=*&order=scan_date.desc&limit=30");const tb=document.getElementById("tbScanIB");tb.innerHTML=d.length===0?`<tr><td colspan="9" style="text-align:center;padding:18px;color:#999">Belum ada data</td></tr>`:d.map((r,i)=>`<tr><td>${i+1}</td><td>${r.no_hvs||"-"}</td><td>${r.incharge||"-"}</td><td>${r.awb||"-"}</td><td>${r.tujuan||"-"}</td><td>${r.from_loc||"-"}</td><td>${formatDate(r.scan_date)}</td><td><span class="badge badge-blue">${r.status||"-"}</span></td><td><button class="btn btn-sm btn-danger" onclick="hapusScan('scan_ib',${r.id},loadScanIB)">🗑️</button></td></tr>`).join("");}catch(e){}}
+async function simpanScanIB(){const btn=document.getElementById("btnSibSimpan");const p={no_hvs:document.getElementById("sib_no_hvs").value.trim(),incharge:document.getElementById("sib_incharge").value,scan_date:document.getElementById("sib_scan_date").value||null,awb:document.getElementById("sib_awb").value.trim(),tujuan:document.getElementById("sib_tujuan").value.trim(),status:document.getElementById("sib_status").value,service:document.getElementById("sib_service").value,from_loc:document.getElementById("sib_from_loc").value.trim(),foto_url:document.getElementById("sib_foto_url").value.trim()||null};if(!p.no_hvs){showToast("Isi No HVS","error");return;}setLoading(btn,true);try{await dbInsert("scan_ib",p);showToast("Scan IB disimpan ✅");resetSib();loadScanIB();}catch(e){showToast("Gagal: "+e.message,"error");}setLoading(btn,false);}
+function resetSib(){["sib_no_hvs","sib_awb","sib_tujuan","sib_from_loc","sib_foto_url"].forEach(x=>document.getElementById(x).value="");document.getElementById("sib_incharge").value="";document.getElementById("sib_scan_date").value=todayISO();}
+// Scan HVS
+async function loadScanHVS(){try{const d=await dbGet("scan_hvs","select=*&order=scan_date.desc&limit=30");const tb=document.getElementById("tbScanHVS");tb.innerHTML=d.length===0?`<tr><td colspan="8" style="text-align:center;padding:18px;color:#999">Belum ada data</td></tr>`:d.map((r,i)=>`<tr><td>${i+1}</td><td>${r.no_hvs||"-"}</td><td>${r.incharge||"-"}</td><td>${r.awb||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.scan_date)}</td><td><span class="badge badge-blue">${r.status||"-"}</span></td><td><button class="btn btn-sm btn-danger" onclick="hapusScan('scan_hvs',${r.id},loadScanHVS)">🗑️</button></td></tr>`).join("");}catch(e){}}
+async function simpanScanHVS(){const btn=document.getElementById("btnShvsSimpan");const p={no_hvs:document.getElementById("shvs_no_hvs").value.trim(),incharge:document.getElementById("shvs_incharge").value,scan_date:document.getElementById("shvs_scan_date").value||null,awb:document.getElementById("shvs_awb").value.trim(),status:document.getElementById("shvs_status").value,service:document.getElementById("shvs_service").value,tujuan:document.getElementById("shvs_tujuan").value.trim(),foto_url:document.getElementById("shvs_foto_url").value.trim()||null};if(!p.no_hvs){showToast("Isi No HVS","error");return;}setLoading(btn,true);try{await dbInsert("scan_hvs",p);showToast("Scan HVS disimpan ✅");resetShvs();loadScanHVS();}catch(e){showToast("Gagal: "+e.message,"error");}setLoading(btn,false);}
+function resetShvs(){["shvs_no_hvs","shvs_awb","shvs_tujuan","shvs_foto_url"].forEach(x=>document.getElementById(x).value="");document.getElementById("shvs_incharge").value="";document.getElementById("shvs_scan_date").value=todayISO();}
+async function hapusScan(table,id,reload){confirmDelete(async()=>{try{await dbDelete(table,id);showToast("Dihapus");reload();}catch(e){showToast("Gagal","error");}});}
+
+// ============================================================
+// DRIVER
+// ============================================================
+let drvEditId=null;
+async function loadDriver(){
+  try{
+    const data=await dbGet("driver","select=*&order=date_berangkat.desc&limit=50");
+    const tb=document.getElementById("tbDriver");
+    tb.innerHTML=data.length===0?`<tr><td colspan="9" style="text-align:center;padding:24px;color:#999">Belum ada data</td></tr>`
+      :data.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.id_driver||"-"}</strong></td><td>${r.from_loc||"-"}</td><td>${r.tujuan||"-"}</td><td>${formatDate(r.date_berangkat)}</td><td><span class="badge ${badgeStatus(r.status_berangkat)}">${r.status_berangkat||"-"}</span></td><td>${formatDate(r.date_sampai)}</td><td><span class="badge ${badgeStatus(r.status_sampai)}">${r.status_sampai||"-"}</span></td><td style="display:flex;gap:5px"><button class="btn btn-sm btn-accent" onclick="editDriver(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="hapusDriver(${r.id})">🗑️</button></td></tr>`).join("");
+    if(!drvEditId) document.getElementById("drv_date_berangkat").value=todayISO();
+  }catch(e){showToast("Gagal memuat","error");}
+}
+async function simpanDriver(){
+  const btn=document.getElementById("btnDrvSimpan");
+  const payload={id_driver:document.getElementById("drv_id_driver").value.trim(),from_loc:document.getElementById("drv_from_loc").value.trim(),tujuan:document.getElementById("drv_tujuan").value.trim(),lat:parseFloat(document.getElementById("drv_lat").value)||null,lng:parseFloat(document.getElementById("drv_lng").value)||null,date_berangkat:document.getElementById("drv_date_berangkat").value||null,status_berangkat:document.getElementById("drv_status_berangkat").value,foto_berangkat:document.getElementById("drv_foto_berangkat").value.trim()||null,date_sampai:document.getElementById("drv_date_sampai").value||null,status_sampai:document.getElementById("drv_status_sampai").value||null,foto_sampai:document.getElementById("drv_foto_sampai").value.trim()||null};
+  if(!payload.id_driver){showToast("Isi ID Driver","error");return;}
+  setLoading(btn,true);
+  try{
+    if(drvEditId){await dbUpdate("driver",drvEditId,payload);showToast("Driver diperbarui ✅");drvEditId=null;}
+    else{await dbInsert("driver",payload);showToast("Driver disimpan ✅");}
+    resetDriver();loadDriver();
+  }catch(e){showToast("Gagal: "+e.message,"error");}
+  setLoading(btn,false);
+}
+async function editDriver(id){
+  try{
+    const r=(await dbGet("driver",`id=eq.${id}&select=*`))[0];
+    drvEditId=id;
+    document.getElementById("drv_id_driver").value=r.id_driver||"";
+    document.getElementById("drv_from_loc").value=r.from_loc||"";
+    document.getElementById("drv_tujuan").value=r.tujuan||"";
+    document.getElementById("drv_lat").value=r.lat||"";
+    document.getElementById("drv_lng").value=r.lng||"";
+    document.getElementById("drv_date_berangkat").value=r.date_berangkat?.slice(0,16)||"";
+    document.getElementById("drv_status_berangkat").value=r.status_berangkat||"BERANGKAT";
+    document.getElementById("drv_foto_berangkat").value=r.foto_berangkat||"";
+    document.getElementById("drv_date_sampai").value=r.date_sampai?.slice(0,16)||"";
+    document.getElementById("drv_status_sampai").value=r.status_sampai||"";
+    document.getElementById("drv_foto_sampai").value=r.foto_sampai||"";
+    document.getElementById("btnDrvSimpan").textContent="✏️ Update";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showToast("Gagal","error");}
+}
+async function hapusDriver(id){confirmDelete(async()=>{try{await dbDelete("driver",id);showToast("Dihapus");loadDriver();}catch(e){showToast("Gagal hapus","error");}});}
+function resetDriver(){["drv_id_driver","drv_from_loc","drv_tujuan","drv_lat","drv_lng","drv_foto_berangkat","drv_date_sampai","drv_foto_sampai"].forEach(x=>document.getElementById(x).value="");document.getElementById("drv_date_berangkat").value=todayISO();document.getElementById("drv_status_berangkat").value="BERANGKAT";document.getElementById("drv_status_sampai").value="";drvEditId=null;document.getElementById("btnDrvSimpan").textContent="💾 Simpan";}
+
+// ============================================================
+// MANIFEST
+// ============================================================
+let mfEditId=null;
+async function loadManifest(){
+  const from=document.getElementById("mf_filterFrom").value;
+  const to=document.getElementById("mf_filterTo").value;
+  let p="select=*&order=tanggal.desc,id.desc&limit=100";
+  if(from) p+=`&tanggal=gte.${from}`;
+  if(to) p+=`&tanggal=lte.${to}`;
+  try{
+    const data=await dbGet("manifest",p);
+    const tb=document.getElementById("tbManifest");
+    const bar=document.getElementById("mfTotalBar");
+    if(data.length===0){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:24px;color:#999">Belum ada data</td></tr>`;bar.style.display="none";return;}
+    const total=data.reduce((s,r)=>s+(r.jumlah||0),0);
+    tb.innerHTML=data.map((r,i)=>`<tr><td>${i+1}</td><td>${formatDateOnly(r.tanggal)}</td><td>${r.incharge||"-"}</td><td>${r.service||"-"}</td><td>${r.tujuan||"-"}</td><td><strong>${r.jumlah||0}</strong></td><td style="display:flex;gap:5px"><button class="btn btn-sm btn-accent" onclick="editManifest(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="hapusManifest(${r.id})">🗑️</button></td></tr>`).join("");
+    bar.style.display="block";bar.textContent=`Total AWB: ${total} dari ${data.length} manifest`;
+  }catch(e){showToast("Gagal memuat","error");}
+}
+async function simpanManifest(){
+  const btn=document.getElementById("btnMfSimpan");
+  const payload={incharge:document.getElementById("mf_incharge").value,service:document.getElementById("mf_service").value,tujuan:document.getElementById("mf_tujuan").value.trim(),tanggal:document.getElementById("mf_tanggal").value||null,jumlah:parseInt(document.getElementById("mf_jumlah").value)||0};
+  if(!payload.incharge||!payload.tujuan){showToast("Lengkapi Incharge & Tujuan","error");return;}
+  setLoading(btn,true);
+  try{
+    if(mfEditId){await dbUpdate("manifest",mfEditId,payload);showToast("Manifest diperbarui ✅");mfEditId=null;}
+    else{await dbInsert("manifest",payload);showToast("Manifest disimpan ✅");}
+    resetManifest();loadManifest();
+  }catch(e){showToast("Gagal: "+e.message,"error");}
+  setLoading(btn,false);
+}
+async function editManifest(id){
+  try{
+    const r=(await dbGet("manifest",`id=eq.${id}&select=*`))[0];
+    mfEditId=id;
+    document.getElementById("mf_incharge").value=r.incharge||"";
+    document.getElementById("mf_service").value=r.service||"";
+    document.getElementById("mf_tujuan").value=r.tujuan||"";
+    document.getElementById("mf_tanggal").value=r.tanggal?.slice(0,10)||"";
+    document.getElementById("mf_jumlah").value=r.jumlah||0;
+    document.getElementById("btnMfSimpan").textContent="✏️ Update";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showToast("Gagal","error");}
+}
+async function hapusManifest(id){confirmDelete(async()=>{try{await dbDelete("manifest",id);showToast("Dihapus");loadManifest();}catch(e){showToast("Gagal hapus","error");}});}
+function resetManifest(){document.getElementById("mf_incharge").value="";document.getElementById("mf_tujuan").value="";document.getElementById("mf_jumlah").value="";document.getElementById("mf_tanggal").value=todayDate();mfEditId=null;document.getElementById("btnMfSimpan").textContent="💾 Simpan";}
+function clearFilterMF(){const t=todayDate();document.getElementById("mf_filterFrom").value=t;document.getElementById("mf_filterTo").value=t;loadManifest();}
+
+// Init manifest filter dates
+document.addEventListener("DOMContentLoaded",()=>{
+  const t=todayDate();
+  document.getElementById("mf_filterFrom").value=t;
+  document.getElementById("mf_filterTo").value=t;
+  document.getElementById("mf_tanggal").value=t;
+  document.getElementById("ob_created_date").value=todayISO();
+  document.getElementById("ib_created_date").value=todayISO();
+  document.getElementById("hvs_created_date").value=todayISO();
+});
+</script>
+</body>
+</html>
